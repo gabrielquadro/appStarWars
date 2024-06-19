@@ -3,8 +3,9 @@ import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from './types';
 import React, { useState, useEffect } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Tipo para a rota da tela de detalhes
+// type route
 type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 
 // Interface para props
@@ -105,7 +106,7 @@ interface Starship {
 }
 
 const Details: React.FC<Props> = ({ route }) => {
-  const { character } = route.params; // Parâmetro
+  const { character } = route.params;
   const [loading, setLoading] = useState<boolean>(false);
   const [homeworld, setHomeWorld] = useState<Planet | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
@@ -115,8 +116,22 @@ const Details: React.FC<Props> = ({ route }) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
+    checkFavorite();
     loadData();
   }, []);
+
+  //is favorite?
+  const checkFavorite = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem('favoriteCharacters');
+      if (favorites) {
+        const favoriteCharacters = JSON.parse(favorites);
+        setIsFavorite(favoriteCharacters.some((char: any) => char.url === character.url));
+      }
+    } catch (error) {
+      console.error('Error checking favorites:', error);
+    }
+  };
 
   const loadData = async () => {
     if (loading) {
@@ -179,8 +194,31 @@ const Details: React.FC<Props> = ({ route }) => {
     }
   };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
+  //star pressed
+  const toggleFavorite = async () => {
+    try {
+      let favorites = await AsyncStorage.getItem('favoriteCharacters');
+      if (!favorites) {
+        favorites = '[]';
+      }
+      const favoriteCharacters = JSON.parse(favorites);
+
+      const isAlreadyFavorite = favoriteCharacters.some((char: any) => char.url === character.url);
+
+      if (isAlreadyFavorite) {
+        // Remove from favorites
+        const updatedFavorites = favoriteCharacters.filter((char: any) => char.url !== character.url);
+        await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));
+        setIsFavorite(false);
+      } else {
+        // Add to favorites
+        const updatedFavorites = [...favoriteCharacters, character];
+        await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   return (

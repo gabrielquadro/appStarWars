@@ -1,10 +1,24 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { DetailsScreenProps } from './types';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList, DetailsScreenProps } from './types';
+import React, { useState, useEffect } from 'react';
+//type details screen
+type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
+//interface for props
+interface Props {
+  route: DetailsScreenRouteProp;
+}
 
-const DetailsScreen: React.FC<DetailsScreenProps> = ({ navigation }) => {
+const Details: React.FC<Props> = ({ route }) => {
+  const { character } = route.params; //Parameter
+
+  useEffect(() => {
+    console.log(character)
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.txt}>Details screen</Text>
+      <Text style={styles.title}>{character.name}</Text>
     </View>
   );
 }
@@ -12,12 +26,14 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  txt: {
-    color: '#ffeb1f'
-  }
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
 });
-export default DetailsScreen;
+
+export default Details;

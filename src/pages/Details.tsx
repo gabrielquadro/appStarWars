@@ -13,7 +13,7 @@ const Details: React.FC<Props> = ({ route }) => {
   const { character } = route.params; //Parameter
 
   useEffect(() => {
-    console.log(character)
+
   }, []);
 
   return (
@@ -28,11 +28,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#000',
   },
   title: {
-    fontSize: 24,
+    fontSize: 16,
+    color: '#FFD700',
     fontWeight: 'bold',
-    marginBottom: 10,
   },
 });
 

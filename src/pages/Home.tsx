@@ -51,37 +51,51 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const renderFooter = () => {
     return loading ? (
       <View style={styles.footer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color='#FFD700' />
       </View>
     ) : null;
   };
 
   return (
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      onEndReached={loadData}
-      onEndReachedThreshold={0.1}
-      ListFooterComponent={renderFooter}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        onEndReached={loadData}
+        onEndReachedThreshold={0.1}
+        ListFooterComponent={renderFooter}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000',
+    paddingVertical: 10
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   item: {
-    backgroundColor: 'gray',
+    backgroundColor: '#212121',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
+    borderRadius: 8,
   },
   title: {
     fontSize: 16,
+    color: '#FFD700',
+    fontWeight: 'bold',
   },
   footer: {
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderColor: '#CED0CE',
   },
 });
 

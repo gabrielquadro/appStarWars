@@ -11,11 +11,13 @@ export default function Favorite() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#000',
+    backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
   },
   txt: {
-    color: '#ffeb1f'
+    fontSize: 16,
+    color: '#FFD700',
+    fontWeight: 'bold',
   }
 });

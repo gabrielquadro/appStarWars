@@ -5,16 +5,26 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../pages/Home';
 import Favorite from '../pages/Favorite';
 import Details from '../pages/Details';
-import { Feather } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-//home
+// Home
 function HomeStack() {
     return (
-        <Stack.Navigator>
+        <Stack.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#212121',
+                },
+                headerTintColor: '#FFD700',
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}
+        >
             <Stack.Screen
                 name="Home"
                 component={Home as React.ComponentType}
@@ -29,14 +39,24 @@ function HomeStack() {
     );
 }
 
-//favorite
+// Favorite
 function FavoriteStack() {
     return (
-        <Stack.Navigator>
-            <Stack.Screen 
-            name="Favorite" 
-            component={Favorite} 
-            options={{ title: 'Favorites' }}
+        <Stack.Navigator
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#212121',
+                },
+                headerTintColor: '#FFD700',
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+            }}
+        >
+            <Stack.Screen
+                name="Favorite"
+                component={Favorite}
+                options={{ title: 'Favorites' }}
             />
         </Stack.Navigator>
     );
@@ -46,7 +66,16 @@ export default function Routes() {
     return (
         <GestureHandlerRootView>
             <NavigationContainer>
-                <Tab.Navigator screenOptions={{ headerShown: false }}>
+                <Tab.Navigator
+                    screenOptions={{
+                        headerShown: false,
+                        tabBarActiveTintColor: '#FFD700',
+                        tabBarInactiveTintColor: '#FFFFFF',
+                        tabBarStyle: {
+                            backgroundColor: '#212121',
+                        },
+                    }}
+                >
                     <Tab.Screen
                         name="HomeTab"
                         component={HomeStack}

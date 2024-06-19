@@ -1,16 +1,31 @@
-import { StyleSheet, Text, ScrollView, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from './types';
 import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, ScrollView, View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from './types';
 
-// type route
 type DetailsScreenRouteProp = RouteProp<RootStackParamList, 'Details'>;
 
-// Interface para props
 interface Props {
   route: DetailsScreenRouteProp;
+}
+
+interface Character {
+  name: string;
+  height: string;
+  mass: string;
+  hair_color: string;
+  skin_color: string;
+  eye_color: string;
+  birth_year: string;
+  gender: string;
+  homeworld: string;
+  films: string[];
+  species: string[];
+  vehicles: string[];
+  starships: string[];
+  url: string;
 }
 
 interface Planet {
@@ -108,7 +123,7 @@ interface Starship {
 const Details: React.FC<Props> = ({ route }) => {
   const { character } = route.params;
   const [loading, setLoading] = useState<boolean>(false);
-  const [homeworld, setHomeWorld] = useState<Planet | null>(null);
+  const [homeworld, setHomeworld] = useState<Planet | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
   const [species, setSpecies] = useState<Species[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -116,36 +131,17 @@ const Details: React.FC<Props> = ({ route }) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
-    checkFavorite();
     loadData();
+    checkFavorite();
   }, []);
 
-  //is favorite?
-  const checkFavorite = async () => {
-    try {
-      const favorites = await AsyncStorage.getItem('favoriteCharacters');
-      if (favorites) {
-        const favoriteCharacters = JSON.parse(favorites);
-        setIsFavorite(favoriteCharacters.some((char: any) => char.url === character.url));
-      }
-    } catch (error) {
-      console.error('Error checking favorites:', error);
-    }
-  };
-
   const loadData = async () => {
-    if (loading) {
-      return;
-    }
-
     setLoading(true);
 
     try {
-      //get homeworld
       const responseHomeworld = await fetch(character.homeworld);
-      // Convert to json
-      const json: Planet = await responseHomeworld.json();
-      setHomeWorld(json);
+      const homeworldData: Planet = await responseHomeworld.json();
+      setHomeworld(homeworldData);
 
       //get films
       const films: Film[] = await Promise.all(
@@ -188,47 +184,53 @@ const Details: React.FC<Props> = ({ route }) => {
       setStarships(starshipsValues);
 
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  //star pressed
+  const checkFavorite = async () => {
+    try {
+      const favorites = await AsyncStorage.getItem('favoriteCharacters');
+      if (favorites) {
+        const favoriteCharacters: Character[] = JSON.parse(favorites);
+        const isFavorite = favoriteCharacters.some((char) => char.url === character.url);
+        setIsFavorite(isFavorite);
+      }
+    } catch (error) {
+      console.error('Error checking favorite:', error);
+    }
+  };
+
   const toggleFavorite = async () => {
     try {
       let favorites = await AsyncStorage.getItem('favoriteCharacters');
-      if (!favorites) {
-        favorites = '[]';
-      }
-      const favoriteCharacters = JSON.parse(favorites);
+      let favoriteCharacters: Character[] = favorites ? JSON.parse(favorites) : [];
 
-      const isAlreadyFavorite = favoriteCharacters.some((char: any) => char.url === character.url);
+      const isAlreadyFavorite = favoriteCharacters.some((char) => char.url === character.url);
 
       if (isAlreadyFavorite) {
-        // Remove from favorites
-        const updatedFavorites = favoriteCharacters.filter((char: any) => char.url !== character.url);
-        await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));
-        setIsFavorite(false);
+        favoriteCharacters = favoriteCharacters.filter((char) => char.url !== character.url);
       } else {
-        // Add to favorites
-        const updatedFavorites = [...favoriteCharacters, character];
-        await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));
-        setIsFavorite(true);
+        favoriteCharacters.push(character);
       }
+
+      await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(favoriteCharacters));
+      setIsFavorite(!isFavorite);
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#FFD700" />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={styles.contentContainer}>
           <View style={styles.header}>
             <Text style={styles.name}>{character.name}</Text>
             <TouchableOpacity onPress={toggleFavorite}>
@@ -239,105 +241,98 @@ const Details: React.FC<Props> = ({ route }) => {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.info}>Height: {character.height}</Text>
-          <Text style={styles.info}>Mass: {character.mass}</Text>
-          <Text style={styles.info}>Hair color: {character.hair_color}</Text>
-          <Text style={styles.info}>Skin color: {character.skin_color}</Text>
-          <Text style={styles.info}>Eye color: {character.eye_color}</Text>
-          <Text style={styles.info}>Birth year: {character.birth_year}</Text>
-          <Text style={styles.info}>Gender: {character.gender}</Text>
-          {homeworld ? (
-            <Text style={styles.info}>Homeworld: {homeworld.name}</Text>
-          ) : (
-            <></>
-          )}
-          {films.length > 0 ? (
-            <>
-              <Text style={styles.subtitle}>Films:</Text>
-              {films.map((item, index) => (
-                <Text key={index} style={styles.item}>- {item.title}</Text>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.sectionTitle}>General Information</Text>
+            <Text style={styles.detail}>Height: {character.height}</Text>
+            <Text style={styles.detail}>Mass: {character.mass}</Text>
+            <Text style={styles.detail}>Hair color: {character.hair_color}</Text>
+            <Text style={styles.detail}>Skin color: {character.skin_color}</Text>
+            <Text style={styles.detail}>Eye color: {character.eye_color}</Text>
+            <Text style={styles.detail}>Birth year: {character.birth_year}</Text>
+            <Text style={styles.detail}>Gender: {character.gender}</Text>
+            {homeworld && <Text style={styles.detail}>Homeworld: {homeworld.name}</Text>}
+          </View>
+          {films.length > 0 && (
+            <View style={styles.detailsContainer}>
+              <Text style={styles.sectionTitle}>Films</Text>
+              {films.map((film, index) => (
+                <Text key={index} style={styles.detail}>{film.title}</Text>
               ))}
-            </>
-          ) : (
-            <></>
+            </View>
           )}
-          {species.length > 0 ? (
-            <>
-              <Text style={styles.subtitle}>Species:</Text>
-              {species.map((item, index) => (
-                <Text key={index} style={styles.item}>- {item.name}</Text>
+          {species.length > 0 && (
+            <View style={styles.detailsContainer}>
+              <Text style={styles.sectionTitle}>Species</Text>
+              {species.map((specie, index) => (
+                <Text key={index} style={styles.detail}>{specie.name}</Text>
               ))}
-            </>
-          ) : (
-            <></>
+            </View>
           )}
-          {vehicles.length > 0 ? (
-            <>
-              <Text style={styles.subtitle}>Vehicles:</Text>
-              {vehicles.map((item, index) => (
-                <Text key={index} style={styles.item}>- {item.name}</Text>
+          {vehicles.length > 0 && (
+            <View style={styles.detailsContainer}>
+              <Text style={styles.sectionTitle}>Vehicles</Text>
+              {vehicles.map((vehicle, index) => (
+                <Text key={index} style={styles.detail}>{vehicle.name}</Text>
               ))}
-            </>
-          ) : (
-            <></>
+            </View>
           )}
-          {starships.length > 0 ? (
-            <>
-              <Text style={styles.subtitle}>Starships:</Text>
-              {starships.map((item, index) => (
-                <Text key={index} style={styles.item}>- {item.name}</Text>
+          {starships.length > 0 && (
+            <View style={styles.detailsContainer}>
+              <Text style={styles.sectionTitle}>Starships</Text>
+              {starships.map((starship, index) => (
+                <Text key={index} style={styles.detail}>{starship.name}</Text>
               ))}
-            </>
-          ) : (
-            <></>
+            </View>
           )}
         </ScrollView>
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: '#000',
-    padding: 20,
+  },
+  contentContainer: {
+    paddingVertical: 20,
+    paddingHorizontal: 16,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
+    paddingHorizontal: 16,
   },
   name: {
     fontSize: 24,
     color: '#FFD700',
     fontWeight: 'bold',
-    flex: 1,
-    marginRight: 10,
   },
-  info: {
-    fontSize: 16,
-    color: '#FFF',
-    marginBottom: 10,
+  detailsContainer: {
+    backgroundColor: '#111',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
   },
-  subtitle: {
+  sectionTitle: {
     fontSize: 18,
     color: '#FFD700',
     fontWeight: 'bold',
-    marginTop: 20,
     marginBottom: 10,
   },
-  item: {
+  detail: {
     fontSize: 16,
     color: '#FFF',
-    marginLeft: 20,
+    marginBottom: 8,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
   },
 });
 

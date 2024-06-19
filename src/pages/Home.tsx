@@ -72,7 +72,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         onEndReached={loadData}
         onEndReachedThreshold={0.1}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingVertical: 5 }}
       />
     </View>
   );

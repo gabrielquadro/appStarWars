@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, ScrollView, View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, ScrollView, View, TouchableOpacity, ActivityIndicator, ToastAndroid } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp } from '@react-navigation/native';
@@ -205,6 +205,14 @@ const Details: React.FC<Props> = ({ route }) => {
     }
   };
 
+  function showToastAdd() {
+    ToastAndroid.show('Character added to favorites!', ToastAndroid.SHORT);
+  }
+
+  function showToastRemove() {
+    ToastAndroid.show('Character removed from favorites!', ToastAndroid.SHORT);
+  }
+
   //star pressed
   const toggleFavorite = async () => {
     try {
@@ -214,8 +222,10 @@ const Details: React.FC<Props> = ({ route }) => {
       const isAlreadyFavorite = favoriteCharacters.some((char) => char.url === character.url);
 
       if (isAlreadyFavorite) { //if is already favorite remove from favorite list
+        showToastRemove();
         favoriteCharacters = favoriteCharacters.filter((char) => char.url !== character.url);
       } else { //add to favorite list
+        showToastAdd();
         favoriteCharacters.push(character);
       }
 

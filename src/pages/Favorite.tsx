@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { StyleSheet, Text, View, FlatList , ToastAndroid} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -28,6 +28,10 @@ const Favorite = () => {
     loadFavorites();
   }, [isFocused]); //when open tab
 
+  function showToastRemove() {
+    ToastAndroid.show('Character removed from favorites!', ToastAndroid.SHORT);
+  }
+
   // remove favorite
   const removeFavorite = async (character: any) => {
     try {
@@ -37,7 +41,7 @@ const Favorite = () => {
 
       const updatedFavorites = favoriteCharacters.filter((char: any) => char.url !== character.url); //remove the character
       await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));// update favorites characters
-
+      showToastRemove();
       setFavorites(updatedFavorites);// update list
     } catch (error) {
       console.error('Error removing favorite:', error);

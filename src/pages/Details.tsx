@@ -121,7 +121,7 @@ interface Starship {
 }
 
 const Details: React.FC<Props> = ({ route }) => {
-  const { character } = route.params;
+  const { character } = route.params; //character selected from home
   const [loading, setLoading] = useState<boolean>(false);
   const [homeworld, setHomeworld] = useState<Planet | null>(null);
   const [films, setFilms] = useState<Film[]>([]);
@@ -131,19 +131,20 @@ const Details: React.FC<Props> = ({ route }) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
 
   useEffect(() => {
-    loadData();
-    checkFavorite();
+    loadData(); //load informations
+    checkFavorite(); // check if is favorite character
   }, []);
 
   const loadData = async () => {
     setLoading(true);
 
     try {
+      //get homeworld data
       const responseHomeworld = await fetch(character.homeworld);
       const homeworldData: Planet = await responseHomeworld.json();
       setHomeworld(homeworldData);
 
-      //get films
+      //get films data
       const films: Film[] = await Promise.all(
         character.films.map(async (filmUrl) => {
           const responseFilm = await fetch(filmUrl);
@@ -153,7 +154,7 @@ const Details: React.FC<Props> = ({ route }) => {
       );
       setFilms(films);
 
-      //get species
+      //get species data
       const speciesValues: Species[] = await Promise.all(
         character.species.map(async (item) => {
           const response = await fetch(item);
@@ -163,7 +164,7 @@ const Details: React.FC<Props> = ({ route }) => {
       );
       setSpecies(speciesValues);
 
-      //get vehicles 
+      //get vehicles data
       const vehiclesValues: Vehicle[] = await Promise.all(
         character.vehicles.map(async (item) => {
           const response = await fetch(item);
@@ -173,7 +174,7 @@ const Details: React.FC<Props> = ({ route }) => {
       );
       setVehicles(vehiclesValues);
 
-      //get starships
+      //get starships data
       const starshipsValues: Starship[] = await Promise.all(
         character.starships.map(async (item) => {
           const response = await fetch(item);
@@ -184,18 +185,19 @@ const Details: React.FC<Props> = ({ route }) => {
       setStarships(starshipsValues);
 
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('Error loading data');
     } finally {
       setLoading(false);
     }
   };
 
+  // check if is favorite character
   const checkFavorite = async () => {
     try {
-      const favorites = await AsyncStorage.getItem('favoriteCharacters');
+      const favorites = await AsyncStorage.getItem('favoriteCharacters'); //get from async storage
       if (favorites) {
         const favoriteCharacters: Character[] = JSON.parse(favorites);
-        const isFavorite = favoriteCharacters.some((char) => char.url === character.url);
+        const isFavorite = favoriteCharacters.some((char) => char.url === character.url); // verify if is favorite
         setIsFavorite(isFavorite);
       }
     } catch (error) {
@@ -203,6 +205,7 @@ const Details: React.FC<Props> = ({ route }) => {
     }
   };
 
+  //star pressed
   const toggleFavorite = async () => {
     try {
       let favorites = await AsyncStorage.getItem('favoriteCharacters');
@@ -210,14 +213,14 @@ const Details: React.FC<Props> = ({ route }) => {
 
       const isAlreadyFavorite = favoriteCharacters.some((char) => char.url === character.url);
 
-      if (isAlreadyFavorite) {
+      if (isAlreadyFavorite) { //if is already favorite remove from favorite list
         favoriteCharacters = favoriteCharacters.filter((char) => char.url !== character.url);
-      } else {
+      } else { //add to favorite list
         favoriteCharacters.push(character);
       }
 
-      await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(favoriteCharacters));
-      setIsFavorite(!isFavorite);
+      await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(favoriteCharacters)); //updte async storage
+      setIsFavorite(!isFavorite); // set for star icon
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
@@ -226,14 +229,14 @@ const Details: React.FC<Props> = ({ route }) => {
   return (
     <View style={styles.container}>
       {loading ? (
-        <View style={styles.loadingContainer}>
+        <View style={styles.loadingContainer} testID="loading-indicator">
           <ActivityIndicator size="large" color="#FFD700" />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.contentContainer}>
           <View style={styles.header}>
             <Text style={styles.name}>{character.name}</Text>
-            <TouchableOpacity onPress={toggleFavorite}>
+            <TouchableOpacity onPress={toggleFavorite} testID="favorite-button">
               <FontAwesome
                 name={isFavorite ? "star" : "star-o"}
                 size={30}

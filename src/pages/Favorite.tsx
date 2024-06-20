@@ -2,21 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useNavigation, useIsFocused } from '@react-navigation/native'; // Importe useIsFocused
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Character } from './types';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 const Favorite = () => {
-  const navigation = useNavigation();
   const isFocused = useIsFocused(); //focus screen
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<any[]>([]); //list of favorites characters
 
   // load by AsyncStorage
   const loadFavorites = async () => {
     try {
-      const favoritesData = await AsyncStorage.getItem('favoriteCharacters');
-      if (favoritesData) {
-        const parsedFavorites = JSON.parse(favoritesData);
+      const favoritesData = await AsyncStorage.getItem('favoriteCharacters');//get favorites by async storage
+      if (favoritesData) { //if contains
+        const parsedFavorites = JSON.parse(favoritesData); //convert to json
         setFavorites(parsedFavorites);
       }
     } catch (error) {
@@ -27,19 +26,19 @@ const Favorite = () => {
   //load favorites
   useEffect(() => {
     loadFavorites();
-  }, [isFocused]);
+  }, [isFocused]); //when open tab
 
-  // remove
+  // remove favorite
   const removeFavorite = async (character: any) => {
     try {
       const favoritesData = await AsyncStorage.getItem('favoriteCharacters');
-      if (!favoritesData) return;
+      if (!favoritesData) return; //list empty
       const favoriteCharacters = JSON.parse(favoritesData);
 
-      const updatedFavorites = favoriteCharacters.filter((char: any) => char.url !== character.url);
-      await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));
+      const updatedFavorites = favoriteCharacters.filter((char: any) => char.url !== character.url); //remove the character
+      await AsyncStorage.setItem('favoriteCharacters', JSON.stringify(updatedFavorites));// update favorites characters
 
-      setFavorites(updatedFavorites);
+      setFavorites(updatedFavorites);// update list
     } catch (error) {
       console.error('Error removing favorite:', error);
     }
@@ -49,7 +48,6 @@ const Favorite = () => {
   const renderItem = ({ item }: { item: Character }) => (
     <TouchableOpacity
       style={styles.item}
-    //onPress={() => navigation.navigate('Details', { character: item })}
     >
       <Text style={styles.title}>{item.name}</Text>
       <TouchableOpacity onPress={() => removeFavorite(item)}>
@@ -65,7 +63,6 @@ const Favorite = () => {
           <Text style={styles.title}>No characters adding to favorites.</Text>
         </View>
       ) : (
-
         <FlatList
           data={favorites}
           keyExtractor={(item, index) => index.toString()}

@@ -18,10 +18,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/iconStarWars.png",
         "backgroundColor": "#000"
-      }
+      },
+      "package": "com.gabrielquadro.appStarWars"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c3a036ad-3f91-40a8-9d48-e5795af3dab1"
+      }
     }
   }
 }

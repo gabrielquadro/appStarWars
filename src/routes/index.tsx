@@ -69,19 +69,31 @@ export default function Routes() {
                 <Tab.Navigator
                     screenOptions={{
                         headerShown: false,
+                        tabBarShowLabel: false,
                         tabBarActiveTintColor: '#FFD700',
                         tabBarInactiveTintColor: '#FFFFFF',
                         tabBarStyle: {
-                            backgroundColor: '#212121',
+                            // backgroundColor: '#222222',
+                            backgroundColor: '#363636',
+                            borderColor: 'gray',
+                            position: 'absolute',
+                            borderTopWidth: 0,
+                            bottom: 14,
+                            left: 5,
+                            right: 5,
+                            elevation: 0,
+                            borderRadius: 14,
+                            height:60,
                         },
                     }}
+                    
                 >
                     <Tab.Screen
                         name="HomeTab"
                         component={HomeStack}
                         options={{
                             tabBarIcon: ({ color, size }) => <Feather name='home' color={color} size={size} />,
-                            tabBarLabel: 'Home'
+                            tabBarLabel: 'Home',
                         }}
                     />
                     <Tab.Screen
@@ -89,7 +101,7 @@ export default function Routes() {
                         component={FavoriteStack}
                         options={{
                             tabBarIcon: ({ color, size }) => <Feather name='star' color={color} size={size} />,
-                            tabBarLabel: 'Favorites'
+                            tabBarLabel: 'Favorites',
                         }}
                     />
                 </Tab.Navigator>
